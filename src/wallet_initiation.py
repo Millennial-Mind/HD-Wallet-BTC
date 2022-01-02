@@ -1,6 +1,9 @@
-import random
-import secrets
-import hashlib
+#import random
+import secrets     #to generate actual random bits
+import linecache   #to rid of '\n' in strings
+import hashlib     #hashing
+import hmac
+
 
 # 1 
 def __entropy_generator():
@@ -47,22 +50,25 @@ def split(__segment_str):
 
 #5  
 def get_wordList(binary_segments):
-    word_segments = [] 
+    word_segments = ""
 
     #convert all binary 11-bit segments into decimal
     for e in binary_segments: 
-        line = helper_binary2decimal(e)
-        print("line", line)
+        specific_line = helper_binary2decimal(e) #need decimal value
 
+        line_txt = linecache.getline("resources/wordlist.txt", specific_line)
+        #word_segments.append(line_txt.strip()) <-- for list implementation
+        word_segments += line_txt.strip() + " "
+
+    return word_segments
 
 def helper_binary2decimal(bin_segment):
 
     decimal = 0
     exp_counter = 0
-    print("bin segemnt ---->", bin_segment)
 
     for i in bin_segment:
-       int_val = int(i) * 2^exp_counter
+       int_val = int(i) * 2**exp_counter
        decimal += int_val
        exp_counter += 1 #increment
     
@@ -70,6 +76,11 @@ def helper_binary2decimal(bin_segment):
         raise RuntimeError("There should be 11 bits in each Segment")   
 
     return decimal
+
+#7
+
+
+
 
 #==============  START  =================#
 
@@ -89,10 +100,16 @@ if len(segment_string) != 132:
 segments = split(segment_string)
 
 #5 Match with corresponding mnemonic word (BIP39)
-phases = get_wordList(segments)
+phrase = get_wordList(segments)
 
+#6 Prompt user for salt phrase (optional)
+salt = input("Enter Salt phrase for Seed generation (*If no salt phrase, press enter*): ")
+full_phrase = phrase
+if len(salt) != 0:
+    full_phrase += salt
 
+print(full_phrase)    
 
-
-
-
+#7 hmac-sha512 full phrase to get seed
+full_phrase_bytes = bytes(full_phrase, 'utf-8')
+hmc = hmac.new(full_phrase_bytes,'', hashlib.sha512()).hexdigest()
