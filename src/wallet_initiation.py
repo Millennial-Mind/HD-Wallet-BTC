@@ -22,12 +22,56 @@ def __shaHash(entropy):
     return first_char
 
 #3
-def binary_conversion(string):
+def binary_conversion(__string):
     binary_string = ""
-    for i in string:
-        binary_string = binary_string + "{0:04b}".format(int(i, 16))
+    for i in __string:
+        binary_string +="{0:04b}".format(int(i, 16))
     return binary_string
 
+#4 
+def split(__segment_str):
+    segments = [] 
+    seg_str = ""
+
+    counter = 0 #every 11 counts, create new str
+    for i in __segment_str:
+        counter += 1
+        seg_str += i
+
+        if(counter == 11): # new segment / reset values
+            segments.append(seg_str)
+            seg_str = ""
+            counter = 0
+
+    return segments     
+
+#5  
+def get_wordList(binary_segments):
+    word_segments = [] 
+
+    #convert all binary 11-bit segments into decimal
+    for e in binary_segments: 
+        line = helper_binary2decimal(e)
+        print("line", line)
+
+
+def helper_binary2decimal(bin_segment):
+
+    decimal = 0
+    exp_counter = 0
+    print("bin segemnt ---->", bin_segment)
+
+    for i in bin_segment:
+       int_val = int(i) * 2^exp_counter
+       decimal += int_val
+       exp_counter += 1 #increment
+    
+    if exp_counter != 11:
+        raise RuntimeError("There should be 11 bits in each Segment")   
+
+    return decimal
+
+#==============  START  =================#
 
 #1 Generate 128 Bit Entropy -> result is in decimal(base10) format
 entropy = __entropy_generator()
@@ -35,11 +79,17 @@ entropy = __entropy_generator()
 #2 Get sha256 entropy string & take first 4 bits(<- == checksum)
 checksum = __shaHash(entropy)
 
-# 3 Add entropy + checksum == 132 bit string
+#3 Add entropy + checksum == 132 bit string
 segment_string = binary_conversion(str(entropy)) + binary_conversion(checksum)
 
-print(segment_string)
-print(len(segment_string))
+if len(segment_string) != 132:
+    raise RuntimeError("Entropy + Checksum should be 132 bits. Instead length is -> ", len(segment_string))
+
+#4 Create 12 11-bit segments
+segments = split(segment_string)
+
+#5 Match with corresponding mnemonic word (BIP39)
+phases = get_wordList(segments)
 
 
 
