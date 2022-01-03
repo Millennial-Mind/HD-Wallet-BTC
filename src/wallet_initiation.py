@@ -3,8 +3,10 @@ import secrets     #to generate actual random bits
 import linecache   #to rid of '\n' in strings
 import hashlib     #hashing
 import hmac
-from passlib.hash import pbkdf2_sha512
 import os, binascii
+from backports.pbkdf2 import pbkdf2_hmac
+#from passlib.hash import pbkdf2_sha512
+
 
 
 # 1 
@@ -105,28 +107,67 @@ segments = split(segment_string)
 phrase = get_wordList(segments)
 
 #6 Prompt user for salt phrase (optional)
-salt = input("Enter Salt phrase for Seed generation (*If no salt phrase, press enter*): ")
-full_phrase = phrase
-if len(salt) != 0:
-    full_phrase += salt
-
-print(full_phrase)    
+salt = input("Enter Salt phrase for Seed generation (*If no salt phrase, press enter*): ") 
+salt = "mnemonic" + salt
 
 #7 hmac-sha512 full phrase to get seed
-full_phrase_bytes = bytes(full_phrase, 'UTF-8')
-
-pb.encode(phrase, 2048)
-print(pb)
-
-#seed = pbkdf2(phrase, salt, 2048, hashlib.sha512(), 512)
-salt = binascii.unhexlify(salt)
 phrase = phrase.encode("utf8")
+salt = bytes(salt, 'UTF-8')
+root_seed = hashlib.pbkdf2_hmac('sha512', phrase, salt, 2048, 64)
+#print("root seed ---> ", root_seed.hex())
+#visual testing + additional contens for #7, see below
+
+#8 split root seed to get master private key && Master chain code
+root_str = str(root_seed.hex())
+master_privK = root_str[:len(root_str)//2]
+master_chainCode = root_str[len(root_str)//2:]
+#visual testingfor #8, see below
 
 
-key = pbkdf2_hmac("sha256", passwd, salt, 50000, 32)
 
 
-#salt = binascii.unhexlify('aaef2d3f4d77ac66e9c5a6c3d8f921d1')
-#passwd = "p@$Sw0rD~1".encode("utf8")
-#key = pbkdf2_hmac("sha256", passwd, salt, 50000, 32)
-#print("Derived key:", binascii.hexlify(key))
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 7 Continued ->
+# to test consistent outputL:
+'''
+tempPhrase = "army van defense carry jealous true garbage claim echo media make crunch"
+tempPhrase = tempPhrase.encode("utf8")
+print(tempPhrase)
+tempSalt = "mnemonicSuperDuperSecret"
+tempSalt = bytes(tempSalt, 'UTF-8')
+print(tempSalt)
+seed = hashlib.pbkdf2_hmac('sha512', tempPhrase, tempSalt, 2048, 64)
+print("master seed ---> ", seed.hex())
+print("size in bytes --> ", len(seed.hex()))
+
+** output should be: b5df16df2157104cfdd22830162a5e170c0161653e3afe6c88defeefb0818c793dbb28ab3ab091897d0715861dc8a18358f80b79d49acf64142ae57037d1d54
+'''
+# another route for computting master seed
+'''
+salt2 = binascii.unhexlify(salt) <- may need to be reworked
+phrase2 = phrase.encode()
+key = pbkdf2_hmac('sha512', phrase2, salt2, 2048, 64)
+print("Derived key:", binascii.hexlify(key).decode())
+'''
+
+# 8 Continued ->
+# testing output in console
+'''
+root_str = str(root_seed.hex())
+s1 = root_str[:len(root_str)//2]
+s2 = root_str[len(root_str)//2:]
+print('First Half  --> ', str(s1), '\nSecond Half --> ', str(s2))
+print('First Half Size--> ', len(s1), ' :  Second Half Size--> ', len(s2))
+'''
