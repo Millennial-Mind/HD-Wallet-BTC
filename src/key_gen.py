@@ -1,56 +1,79 @@
 import hmac
 import hashlib
-from ecdsa import SECP256k1
-import base58
+import ecdsa
+# import SECP256k1, SigningKey, VerifyingKey
+import keys
 import json
 
-# hmac sha512 isn't giving the expected output
-
-order = SECP256k1.order
+order = ecdsa.SECP256k1.order
 
 # Generate a child hardened xprv
 def hardened(xprv, index):
-    return
-
-# Generate a child xprv
-def CKDprv(xprv, xpub, index):
-    if index >= pow(2, 31):
-        return hardened(xprv, index)
-    
     # Decode xprv/xpub, get depth, & trim xprv/xpub : START
-    xprv = base58.b58decode_check(xprv).hex()
-    xpub = base58.b58decode_check(xpub).hex()
-    xprv = xprv[26:len(xprv)]
-    depth = xpub[8:10]
-    xpub = xpub[26:len(xpub)]
+    prv = keys.xKey(xprv)
     # Decode xprv/xpub, get depth, & trim xprv/xpub : STOP
 
-    # Get parent pub key & parent chain code : START
-    pKey = xpub[(len(xpub)//2)-1:]
-    pChain = xprv[:(len(xprv)//2)-1]
-    # Get parent pub key & parent chain code : STOP
-
     # Get hmac-sha512 : START
-    i = "{:08x}".format(index)
-    keyMsg = pKey + i
-    print(keyMsg)
+    i = "{:08x}".format(int(index))
+    keyMsg = prv.key + i
     keyMsg = bytes.fromhex(keyMsg)
-    print(keyMsg)
-    pChain = bytes.fromhex(pChain)
-    print(pChain)
-    h = hmac.new(pChain, keyMsg, hashlib.sha512).hexdigest()
-    print('hmac:\t\t'+h)
+    h = hmac.new(bytes.fromhex(prv.chain), keyMsg, hashlib.sha512).hexdigest()
     # Get hmac-sha512 : STOP
     
     # Get child chain & child key & child depth : START
     cChain = h[(len(h)//2):]
 
     cKey = h[:(len(h)//2)]
-    xprvKey = xprv[(len(xprv)//2)-1:]
-    cKey = hex((int(cKey, 16) + int(xprvKey, 16)) % int(hex(order), 16))
+    cKey = hex((int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16))
     cKey = '00' + cKey[2:]
 
-    cDepth = (int(depth, 16) + int("1", 16))
+    cDepth = (int(prv.depth, 16) + int("1", 16))
+    cDepth = "{:02x}".format(cDepth)
+    # Get child chain & child key & child depth : STOP
+
+    # Get fingerprint : START
+    pKeyHash = hashlib.new('sha256', bytes.fromhex(prv.key)).digest()
+    pKeyHash = hashlib.new('ripemd160', pKeyHash).hexdigest()
+
+    fingerprint = pKeyHash[:8]
+    # Get fingerprint : STOP
+
+    # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : START
+    version = '0488ade4'
+    final = version + cDepth + fingerprint + i + cChain + cKey
+    # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : STOP
+
+    print('Final:\t\t'+final)
+    return final
+
+# Generate a child xprv
+def CKDprv(xprv, index):
+    if index >= pow(2, 31):
+        return hardened(xprv, index)
+    
+    # Decode xprv/xpub, get depth, & trim xprv/xpub : START
+    prv = keys.xKey(xprv)
+    # Decode xprv/xpub, get depth, & trim xprv/xpub : STOP
+
+    # Get parent pub key & parent chain code : START
+    pKey = keys.PrvKeyToPubKey(prv.key)
+    # Get parent pub key & parent chain code : STOP
+
+    # Get hmac-sha512 : START
+    i = "{:08x}".format(int(index))
+    keyMsg = pKey + i
+    keyMsg = bytes.fromhex(keyMsg)
+    h = hmac.new(bytes.fromhex(prv.chain), keyMsg, hashlib.sha512).hexdigest()
+    # Get hmac-sha512 : STOP
+    
+    # Get child chain & child key & child depth : START
+    cChain = h[(len(h)//2):]
+
+    cKey = h[:(len(h)//2)]
+    cKey = hex((int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16))
+    cKey = '00' + cKey[2:]
+
+    cDepth = (int(prv.depth, 16) + int("1", 16))
     cDepth = "{:02x}".format(cDepth)
     # Get child chain & child key & child depth : STOP
 
@@ -63,8 +86,6 @@ def CKDprv(xprv, xpub, index):
 
     # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : START
     version = '0488ade4'
-    #print('Chain Code:\t'+cChain)
-    #print('Child Key:\t'+cKey)
     final = version + cDepth + fingerprint + i + cChain + cKey
     # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : STOP
 
@@ -73,16 +94,58 @@ def CKDprv(xprv, xpub, index):
 
 # Generate a child xpub
 def CKDpub(xpub, index):
-    return
+    if index >= pow(2, 31):
+        raise ValueError('For CKDpub, index cannot be int hardened range.')
 
-prv = 'xprv9uavBdbtr4h6voVJ6AqhePKNoBpVKznWgcyARSFDokaw3zB6dUH7U7ZJTUacXK4v8CMKcdabBKSXY2GwFfhR2f6YHCQ8tuhT2WL46TvHW5x'
-pub = 'xpub68aGb98ngSFQ9HZmCCNi1XG7MDeyjTWN3qtmDpeqN67uvnWFB1bN1usnJjsJSHxcsBdv4z7CmShKdWrewmQNKAqmwCArbfofGbFQyNpB8kF'
-expected = 'xprv9wmw7FYNj8qzTMFiCUYinypUBKEMHKy7woTyGZhPbwFN3ichLiEjWjZtHEGh7bziJYaZLheUZUfRufPAKrPRkZvoiKnhjchsv3CBJohZsEV'
-expected = base58.b58decode_check(expected).hex()
+    # Decode xprv/xpub, get depth, & trim xprv/xpub : START
+    pub = keys.xKey(xpub)
+    # Decode xprv/xpub, get depth, & trim xprv/xpub : STOP
 
-if (expected == CKDprv(prv, pub, 0)):
+    # Get hmac-sha512 : START
+    i = "{:08x}".format(int(index))
+    keyMsg = pub.key + i
+    keyMsg = bytes.fromhex(keyMsg)
+    h = hmac.new(bytes.fromhex(pub.chain), keyMsg, hashlib.sha512).hexdigest()
+    # Get hmac-sha512 : STOP
+    
+    # Get child chain & child key & child depth : START
+    cChain = h[(len(h)//2):]
+
+    # Good til this point...
+    # Multiply the tweak (first half of HMAC) by the generator point, then add the result to the parent pub key
+    cKey = keys.PrvKeyToPubKey(h[:len(h)//2])
+    cKey = hex(int(cKey, 16) + int(pub.key, 16))
+    if (int(cKey[-2:], 16) % 2 == 0):
+        cKey = '02' + cKey[2:]
+    else:
+        cKey = '03' + cKey[2:]
+
+    cDepth = (int(pub.depth, 16) + int("1", 16))
+    cDepth = "{:02x}".format(cDepth)
+    # Get child chain & child key & child depth : STOP
+
+    # Get fingerprint : START
+    pKeyHash = hashlib.new('sha256', bytes.fromhex(pub.key)).digest()
+    pKeyHash = hashlib.new('ripemd160', pKeyHash).hexdigest()
+
+    fingerprint = pKeyHash[:8]
+    # Get fingerprint : STOP
+
+    # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : START
+    final = pub.version + cDepth + fingerprint + i + cChain + cKey
+    # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : STOP
+
+    print('Final:\t\t'+final)
+    return final
+
+priv = 'xprv9vhJ3aEz7keXTpC3bUDfGrQBjgAJr9hohheGL2eSwB3LrVqJc69WFzMZWaBYQ87rAfkhip8A6AsABoNx93VnDA22oteyu8HzuhnFSbJzK2W'
+pub = 'xpub69geT5msx8CpgJGWhVkfdzLvHhzoFcRf4vZs8R44VWaKjJAT9dTkong3Ms6Q5JtDC8zzq1e1EWczjwDUsxvDMkhxDwsrbPh2RQePpTu7BEZ'
+expected = 'xpub6ASUhyiibqNpVQA8UHx8zUBDacwCcLWggPA2jgCsj5EgEMkr2ha65c2QrLxmgBSBkf5VW8Q9Dg1nBkzYPukV5pKT2pLGpDfBXsUqH5pyFVq'
+expected = keys.xKey(expected)
+
+if (expected.getKey() == CKDpub(pub, 0)):
     print('YEP')
 else:
     print('NOPE')
 
-print('Target: \t'+expected)
+print('Target: \t'+expected.getKey())
