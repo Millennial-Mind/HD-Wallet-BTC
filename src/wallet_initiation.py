@@ -3,6 +3,8 @@ import secrets     #to generate actual random bits
 import linecache   #to rid of '\n' in strings
 import hashlib     #hashing
 import hmac
+from passlib.hash import pbkdf2_sha512
+import os, binascii
 
 
 # 1 
@@ -111,5 +113,20 @@ if len(salt) != 0:
 print(full_phrase)    
 
 #7 hmac-sha512 full phrase to get seed
-full_phrase_bytes = bytes(full_phrase, 'utf-8')
-hmc = hmac.new(full_phrase_bytes,'', hashlib.sha512()).hexdigest()
+full_phrase_bytes = bytes(full_phrase, 'UTF-8')
+
+pb.encode(phrase, 2048)
+print(pb)
+
+#seed = pbkdf2(phrase, salt, 2048, hashlib.sha512(), 512)
+salt = binascii.unhexlify(salt)
+phrase = phrase.encode("utf8")
+
+
+key = pbkdf2_hmac("sha256", passwd, salt, 50000, 32)
+
+
+#salt = binascii.unhexlify('aaef2d3f4d77ac66e9c5a6c3d8f921d1')
+#passwd = "p@$Sw0rD~1".encode("utf8")
+#key = pbkdf2_hmac("sha256", passwd, salt, 50000, 32)
+#print("Derived key:", binascii.hexlify(key))
