@@ -33,8 +33,11 @@ def CKDprv(xprv, xpub, index):
     # Get hmac-sha512 : START
     i = "{:08x}".format(index)
     keyMsg = pKey + i
-    keyMsg = bytes.fromhex(pKey)
+    print(keyMsg)
+    keyMsg = bytes.fromhex(keyMsg)
+    print(keyMsg)
     pChain = bytes.fromhex(pChain)
+    print(pChain)
     h = hmac.new(pChain, keyMsg, hashlib.sha512).hexdigest()
     print('hmac:\t\t'+h)
     # Get hmac-sha512 : STOP
@@ -52,37 +55,34 @@ def CKDprv(xprv, xpub, index):
     # Get child chain & child key & child depth : STOP
 
     # Get fingerprint : START
-    pKeyHash = hashlib.new('ripemd160')
-    pKeyHash.update(bytes.fromhex(pKey))
-    pKeyHash = pKeyHash.hexdigest()
+    pKeyHash = hashlib.new('sha256', bytes.fromhex(pKey)).digest()
+    pKeyHash = hashlib.new('ripemd160', pKeyHash).hexdigest()
 
     fingerprint = pKeyHash[:8]
     # Get fingerprint : STOP
 
     # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : START
-    print('Chain Code:\t'+cChain)
-    print('Child Key:\t'+cKey)
-    final = cChain + cKey
+    version = '0488ade4'
+    #print('Chain Code:\t'+cChain)
+    #print('Child Key:\t'+cKey)
+    final = version + cDepth + fingerprint + i + cChain + cKey
     # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : STOP
 
-    # print('Final:\t\t'+final)
+    print('Final:\t\t'+final)
     return final
 
 # Generate a child xpub
 def CKDpub(xpub, index):
     return
 
-prv = 'xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi'
-pub = 'xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8'
-expected = 'xprv9vHkqa6EV4sPZHYqZznhT2NPtPCjKuDKGY38FBWLvgaDx45zo9WQRUT3dKYnjwih2yJD9mkrocEZXo1ex8G81dwSM1fwqWpWkeS3v86pgKt'
+prv = 'xprv9uavBdbtr4h6voVJ6AqhePKNoBpVKznWgcyARSFDokaw3zB6dUH7U7ZJTUacXK4v8CMKcdabBKSXY2GwFfhR2f6YHCQ8tuhT2WL46TvHW5x'
+pub = 'xpub68aGb98ngSFQ9HZmCCNi1XG7MDeyjTWN3qtmDpeqN67uvnWFB1bN1usnJjsJSHxcsBdv4z7CmShKdWrewmQNKAqmwCArbfofGbFQyNpB8kF'
+expected = 'xprv9wmw7FYNj8qzTMFiCUYinypUBKEMHKy7woTyGZhPbwFN3ichLiEjWjZtHEGh7bziJYaZLheUZUfRufPAKrPRkZvoiKnhjchsv3CBJohZsEV'
 expected = base58.b58decode_check(expected).hex()
-print(expected)
-expected = expected[26:len(expected)]
 
 if (expected == CKDprv(prv, pub, 0)):
     print('YEP')
 else:
     print('NOPE')
 
-print('Target cChain:\t'+expected[:len(expected)//2-1])
-print('Target cKey:\t'+expected[len(expected)//2-1:])
+print('Target: \t'+expected)
