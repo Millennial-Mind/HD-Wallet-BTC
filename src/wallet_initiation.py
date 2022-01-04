@@ -120,9 +120,16 @@ def in_it_wallet():
     master_chainCode = root_str[len(root_str)//2:]
     #visual testingfor #8, see below
 
-    #9 create key obj 
+    #9 create key obj + initialize
     master_key = keys.xKey() #keys obj
     master_key.key = '00' + master_privK
+    master_key.chain = master_chainCode
+    master_key.version = '0488ade4'
+    master_key.depth = '00'
+    master_key.fingerprint = '00000000'
+    master_key.index = '00000000'
+
+    return master_key
 
 
 # 7 Continued ->
