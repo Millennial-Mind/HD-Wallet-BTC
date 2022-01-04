@@ -4,3 +4,4 @@
 *.pyc
 src/__pycache__/
 test.py
+*.whl
