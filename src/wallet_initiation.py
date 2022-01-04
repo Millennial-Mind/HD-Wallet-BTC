@@ -1,8 +1,8 @@
 #import random
-import secrets     #to generate actual random bits
-import linecache   #to rid of '\n' in strings
-import keys        #for prv key formatting 
-import hashlib     #hashing everything below
+import secrets              #to generate actual random bits
+import linecache            #to rid of '\n' in strings
+from src import keys        #for prv key formatting
+import hashlib              #hashing everything below
 import hmac
 import os, binascii
 from backports.pbkdf2 import pbkdf2_hmac
@@ -123,24 +123,6 @@ def in_it_wallet():
     #9 create key obj 
     master_key = keys.xKey() #keys obj
     master_key.key = '00' + master_privK
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # 7 Continued ->
