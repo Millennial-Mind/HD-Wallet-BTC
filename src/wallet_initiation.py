@@ -1,7 +1,7 @@
 #import random
 import secrets     #to generate actual random bits
 import linecache   #to rid of '\n' in strings
-import hashlib     #hashing
+import hashlib     #hashing everything below
 import hmac
 import os, binascii
 from backports.pbkdf2 import pbkdf2_hmac
@@ -81,7 +81,6 @@ def helper_binary2decimal(bin_segment):
 
     return decimal
 
-#7
 
 
 
@@ -96,9 +95,6 @@ checksum = __shaHash(entropy)
 
 #3 Add entropy + checksum == 132 bit string
 segment_string = binary_conversion(str(entropy)) + binary_conversion(checksum)
-
-if len(segment_string) != 132:
-    raise RuntimeError("Entropy + Checksum should be 132 bits. Instead length is -> ", len(segment_string))
 
 #4 Create 12 11-bit segments
 segments = split(segment_string)
