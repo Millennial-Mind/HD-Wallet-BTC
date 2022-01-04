@@ -1,6 +1,7 @@
 #import random
 import secrets     #to generate actual random bits
 import linecache   #to rid of '\n' in strings
+import keys        #for prv key formatting 
 import hashlib     #hashing everything below
 import hmac
 import os, binascii
@@ -86,38 +87,45 @@ def helper_binary2decimal(bin_segment):
 
 
 #==============  START  =================#
+def in_it_wallet():
+    #1 Generate 128 Bit Entropy -> result is in decimal(base10) format
+    entropy = __entropy_generator()
 
-#1 Generate 128 Bit Entropy -> result is in decimal(base10) format
-entropy = __entropy_generator()
+    #2 Get sha256 entropy string & take first 4 bits(<- == checksum)
+    checksum = __shaHash(entropy)
 
-#2 Get sha256 entropy string & take first 4 bits(<- == checksum)
-checksum = __shaHash(entropy)
+    #3 Add entropy + checksum == 132 bit string
+    segment_string = binary_conversion(str(entropy)) + binary_conversion(checksum)
 
-#3 Add entropy + checksum == 132 bit string
-segment_string = binary_conversion(str(entropy)) + binary_conversion(checksum)
+    #4 Create 12 11-bit segments
+    segments = split(segment_string)
 
-#4 Create 12 11-bit segments
-segments = split(segment_string)
+    #5 Match with corresponding mnemonic word (BIP39)
+    phrase = get_wordList(segments)
 
-#5 Match with corresponding mnemonic word (BIP39)
-phrase = get_wordList(segments)
+    #6 Prompt user for salt phrase (optional)
+    salt = input("Enter Salt phrase for Seed generation (*If no salt phrase, press enter*): ") 
+    salt = "mnemonic" + salt
 
-#6 Prompt user for salt phrase (optional)
-salt = input("Enter Salt phrase for Seed generation (*If no salt phrase, press enter*): ") 
-salt = "mnemonic" + salt
+    #7 hmac-sha512 full phrase to get seed
+    phrase = phrase.encode("utf8")
+    salt = bytes(salt, 'UTF-8')
+    root_seed = hashlib.pbkdf2_hmac('sha512', phrase, salt, 2048, 64)
+    #print("root seed ---> ", root_seed.hex())
+    #visual testing + additional contens for #7, see below
 
-#7 hmac-sha512 full phrase to get seed
-phrase = phrase.encode("utf8")
-salt = bytes(salt, 'UTF-8')
-root_seed = hashlib.pbkdf2_hmac('sha512', phrase, salt, 2048, 64)
-#print("root seed ---> ", root_seed.hex())
-#visual testing + additional contens for #7, see below
+    #8 split root seed to get master private key && Master chain code
+    root_str = str(root_seed.hex())
+    master_privK = root_str[:len(root_str)//2]
+    master_chainCode = root_str[len(root_str)//2:]
+    #visual testingfor #8, see below
 
-#8 split root seed to get master private key && Master chain code
-root_str = str(root_seed.hex())
-master_privK = root_str[:len(root_str)//2]
-master_chainCode = root_str[len(root_str)//2:]
-#visual testingfor #8, see below
+    #9 create key obj 
+    master_key = keys.xKey() #keys obj
+    master_key.key = '00' + master_privK
+
+
+
 
 
 
