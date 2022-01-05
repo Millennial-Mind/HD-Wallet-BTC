@@ -51,13 +51,9 @@ def CKDprv(xprv, index):
     if index >= pow(2, 31):
         return hardened(xprv, index)
     
-    # Decode xprv/xpub, get depth, & trim xprv/xpub : START
     prv = keys.xKey(xprv)
-    # Decode xprv/xpub, get depth, & trim xprv/xpub : STOP
 
-    # Get parent pub key & parent chain code : START
     pKey = keys.PrvKeyToPubKey(prv.key)
-    # Get parent pub key & parent chain code : STOP
 
     # Get hmac-sha512 : START
     i = "{:08x}".format(int(index))
@@ -70,7 +66,7 @@ def CKDprv(xprv, index):
     cChain = h[(len(h)//2):]
 
     cKey = h[:(len(h)//2)]
-    cKey = hex((int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16))
+    cKey = hex((int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16)) # modulus of the order of the curve handles the overflow of the addition
     cKey = '00' + cKey[2:]
 
     cDepth = (int(prv.depth, 16) + int("1", 16))
@@ -92,7 +88,8 @@ def CKDprv(xprv, index):
     print('Final:\t\t'+final)
     return final
 
-# Generate a child xpub
+# Generate a child xpub (Doesnt work right now, need to look into EC math)
+# NOT OPERATIONABLE, DO NOT USE
 def CKDpub(xpub, index):
     if index >= pow(2, 31):
         raise ValueError('For CKDpub, index cannot be int hardened range.')
@@ -113,6 +110,7 @@ def CKDpub(xpub, index):
 
     # Good til this point...
     # Multiply the tweak (first half of HMAC) by the generator point, then add the result to the parent pub key
+    # Fuck with Gx & Gy, see if you can get an expected output
     cKey = keys.PrvKeyToPubKey(h[:len(h)//2])
     cKey = hex(int(cKey, 16) + int(pub.key, 16))
     if (int(cKey[-2:], 16) % 2 == 0):
@@ -138,6 +136,7 @@ def CKDpub(xpub, index):
     print('Final:\t\t'+final)
     return final
 
+'''
 priv = 'xprv9vhJ3aEz7keXTpC3bUDfGrQBjgAJr9hohheGL2eSwB3LrVqJc69WFzMZWaBYQ87rAfkhip8A6AsABoNx93VnDA22oteyu8HzuhnFSbJzK2W'
 pub = 'xpub69geT5msx8CpgJGWhVkfdzLvHhzoFcRf4vZs8R44VWaKjJAT9dTkong3Ms6Q5JtDC8zzq1e1EWczjwDUsxvDMkhxDwsrbPh2RQePpTu7BEZ'
 expected = 'xpub6ASUhyiibqNpVQA8UHx8zUBDacwCcLWggPA2jgCsj5EgEMkr2ha65c2QrLxmgBSBkf5VW8Q9Dg1nBkzYPukV5pKT2pLGpDfBXsUqH5pyFVq'
@@ -149,3 +148,4 @@ else:
     print('NOPE')
 
 print('Target: \t'+expected.getKey())
+'''

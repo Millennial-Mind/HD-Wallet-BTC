@@ -96,6 +96,7 @@ def in_it_wallet():
 
     #3 Add entropy + checksum == 132 bit string
     segment_string = binary_conversion(str(entropy)) + binary_conversion(checksum)
+    # Possible refactoring to use python native libraries (bytes.fromhex() or int(something, 16))
 
     #4 Create 12 11-bit segments
     segments = split(segment_string)
