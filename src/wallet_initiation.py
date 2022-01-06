@@ -126,7 +126,7 @@ def in_it_wallet():
     master_key.key = '00' + master_privK
     master_key.chain = master_chainCode
     master_key.version = '0488ade4'
-    master_key.depth = '00'
+    master_key.xDepth = '00'
     master_key.fingerprint = '00000000'
     master_key.index = '00000000'
 

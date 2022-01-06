@@ -1,5 +1,8 @@
+from anytree.node.node import Node
 from base58 import b58decode_check
 from ecdsa import SigningKey, SECP256k1
+from anytree import NodeMixin
+import hashlib
 
 class xKey:
     def __init__(self, payload = ''):
@@ -10,7 +13,7 @@ class xKey:
         # Default values to none
         if (payload == ''):
             self.version = None
-            self.depth = None
+            self.xDepth = None
             self.fingerprint = None
             self.index = None
             self.chain = None
@@ -19,7 +22,7 @@ class xKey:
         elif 'xpub' in payload or 'xprv' in payload:
             temp = b58decode_check(payload).hex()
             self.version = temp[:8]
-            self.depth = temp[8:10]
+            self.xDepth = temp[8:10]
             self.fingerprint = temp[10:18]
             self.index = temp[18:26]
             self.chain = temp[26:90]
@@ -27,13 +30,20 @@ class xKey:
         # Otherwise, assume the payload to be in hex format
         else:
             self.version = payload[:8]
-            self.depth = payload[8:10]
+            self.xDepth = payload[8:10]
             self.fingerprint = payload[10:18]
             self.index = payload[18:26]
             self.chain = payload[26:90]
             self.key = payload[90:]
     def getKey(self):
-        return self.version + self.depth + self.fingerprint + self.index + self.chain + self.key
+        return self.version + self.xDepth + self.fingerprint + self.index + self.chain + self.key
+class xKeyNode(xKey, NodeMixin):
+    def __init__(self, payload, parent = None):
+        xKey.__init__(self, payload)
+        self.name = "Index: " + self.index[-1:] + "\nKey:" + self.key[:8]
+        self.parent = parent
+    def getKey(self):
+        return super().getKey()
 
 # Converts a private key to a compressed public key
 def PrvKeyToPubKey(prv):
@@ -60,9 +70,16 @@ def PrvKeyToPubKey(prv):
 
 # Converts xprv to xpub (version is swapped & compressed pub key replaces private key)
 def Neuter(xprv):
-    if type(xprv) is not xKey:
-        raise TypeError('Neuter only accepts xKey input.')
+    #if type(xprv) is not xKey or type(xprv) is not xKeyNode:
+    #    raise TypeError('Neuter only accepts xKey or xKeyNode input.')
     temp = xKey(xprv.getKey())
     temp.version = '0488b21e'
     temp.key = PrvKeyToPubKey(xprv.key)
     return temp
+
+def getFingerprint(pubKey):
+    pKeyHash = hashlib.new('sha256', bytes.fromhex(pubKey)).digest()
+    pKeyHash = hashlib.new('ripemd160', pKeyHash).hexdigest()
+
+    fingerprint = pKeyHash[:8]
+    return fingerprint

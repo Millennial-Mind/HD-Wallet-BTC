@@ -27,7 +27,7 @@ def hardened(xprv, index):
     cKey = hex((int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16))
     cKey = '00' + cKey[2:]
 
-    cDepth = (int(prv.depth, 16) + int("1", 16))
+    cDepth = (int(prv.xDepth, 16) + int("1", 16))
     cDepth = "{:02x}".format(cDepth)
     # Get child chain & child key & child depth : STOP
 
@@ -69,15 +69,12 @@ def CKDprv(xprv, index):
     cKey = hex((int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16)) # modulus of the order of the curve handles the overflow of the addition
     cKey = '00' + cKey[2:]
 
-    cDepth = (int(prv.depth, 16) + int("1", 16))
+    cDepth = (int(prv.xDepth, 16) + int("1", 16))
     cDepth = "{:02x}".format(cDepth)
     # Get child chain & child key & child depth : STOP
 
     # Get fingerprint : START
-    pKeyHash = hashlib.new('sha256', bytes.fromhex(pKey)).digest()
-    pKeyHash = hashlib.new('ripemd160', pKeyHash).hexdigest()
-
-    fingerprint = pKeyHash[:8]
+    fingerprint = keys.getFingerprint(pKey)
     # Get fingerprint : STOP
 
     # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : START
@@ -118,7 +115,7 @@ def CKDpub(xpub, index):
     else:
         cKey = '03' + cKey[2:]
 
-    cDepth = (int(pub.depth, 16) + int("1", 16))
+    cDepth = (int(pub.xDepth, 16) + int("1", 16))
     cDepth = "{:02x}".format(cDepth)
     # Get child chain & child key & child depth : STOP
 
