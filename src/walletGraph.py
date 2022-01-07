@@ -29,7 +29,7 @@ def FindParent(wallet, fingerprint):
         parentFingerprint = keys.getFingerprint(keys.Neuter(x).key)
         if parentFingerprint == fingerprint:
             return x
-    return "Error: Parent key based on fingerprint not found"
+    raise Exception("Error: Parent key based on fingerprint not found")
 
 def buildTree(wallet):
     """

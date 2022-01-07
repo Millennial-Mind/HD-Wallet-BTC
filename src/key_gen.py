@@ -32,18 +32,15 @@ def hardened(xprv, index):
     # Get child chain & child key & child depth : STOP
 
     # Get fingerprint : START
-    pKeyHash = hashlib.new('sha256', bytes.fromhex(prv.key)).digest()
-    pKeyHash = hashlib.new('ripemd160', pKeyHash).hexdigest()
-
-    fingerprint = pKeyHash[:8]
+    fingerprint = keys.getFingerprint(keys.PrvKeyToPubKey(prv.key))
     # Get fingerprint : STOP
 
     # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : START
     version = '0488ade4'
-    final = version + cDepth + fingerprint + i + cChain + cKey
+    final = keys.xKey(version + cDepth + fingerprint + i + cChain + cKey)
     # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : STOP
 
-    print('Final:\t\t'+final)
+    #print('Final:\t\t'+final)
     return final
 
 # Generate a child xprv
@@ -79,10 +76,10 @@ def CKDprv(xprv, index):
 
     # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : START
     version = '0488ade4'
-    final = version + cDepth + fingerprint + i + cChain + cKey
+    final = keys.xKey(version + cDepth + fingerprint + i + cChain + cKey)
     # Combine to final package (xprv + depth + fingerprint + index + cChain + cKey) : STOP
 
-    print('Final:\t\t'+final)
+    #print('Final:\t\t'+final)
     return final
 
 # Generate a child xpub (Doesnt work right now, need to look into EC math)

@@ -8,3 +8,4 @@ test.py
 *.whl
 wallet.dot
 wallet.dot.png
+resources/wallet_keys.pickle

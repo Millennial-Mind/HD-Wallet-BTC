@@ -1,5 +1,46 @@
 #from src import wallet_initiation
-import src as wallet
+import src
+import os.path
 
 # 1 -> create the master priv key + master chain code
-master_key = wallet.in_it_wallet()
+wallet = list()
+
+if not os.path.exists('resources\wallet_keys.pickle'):
+    wallet.append(src.in_it_wallet())
+    src.writeKey(wallet)
+else:
+    wallet = src.loadWallet()
+
+userIn = ''
+tempDerived = None
+while userIn != 'exit':
+    userIn = input("Enter a key path (ex: m/0 or m/0'/0): ")
+    userIn = userIn.split('/')
+
+    # Loop through the key path
+    # Each execution passes in the current key as the key in CKDprv and the next string of userIn as the index
+    for i in (range(len(userIn)-1)):
+        # Check if hardened range
+        if userIn[i+1][-1:] == "'":
+            index = int(userIn[i+1][:len(userIn[i+1])-1]) + int('80000000', 16)
+            # If it's the initial execution, use master key, else use the previous key (tempDerived)
+            if i == 0:
+                tempDerived = src.CKDprv(wallet[0].getKey(), index)
+            else:
+                tempDerived = src.CKDprv(tempDerived.getKey(), index)
+            
+            # Check if the the key to be derived is in wallet already
+            if tempDerived not in wallet:
+                wallet.append(tempDerived)
+        # Similar execution for non-hardened range
+        else:
+            index = int(userIn[i+1])
+
+            if i == 0:
+                tempDerived = src.CKDprv(wallet[0].getKey(), index)
+            else:
+                tempDerived = src.CKDprv(tempDerived.getKey(), index)
+            
+            if tempDerived not in wallet:
+                wallet.append(tempDerived)
+    src.buildTree(wallet)

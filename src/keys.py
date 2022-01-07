@@ -35,6 +35,10 @@ class xKey:
             self.index = payload[18:26]
             self.chain = payload[26:90]
             self.key = payload[90:]
+    def __eq__(self, other):
+        if self.key == other.key:
+            return True
+        return False
     def getKey(self):
         return self.version + self.xDepth + self.fingerprint + self.index + self.chain + self.key
 class xKeyNode(xKey, NodeMixin):

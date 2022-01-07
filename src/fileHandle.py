@@ -1,11 +1,11 @@
 # Contains function for handling the wallet file. Should write keys to the file, fetch the file (and build the wallet list)
-import json
+import pickle
 
 def writeKey(key):
-    with open('resources\wallet_keys', 'w') as wk:
-        json.dump(key, wk)
+    with open('resources\wallet_keys.pickle', 'wb') as wk:
+        pickle.dump(key, wk, -1)
 
 def loadWallet():
-    with open('resources\wallet_keys', 'r') as wk:
-        t = json.load(wk)
+    with open('resources\wallet_keys.pickle', 'rb') as wk:
+        t = pickle.load(wk)
     return t
