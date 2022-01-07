@@ -40,7 +40,14 @@ class xKey:
 class xKeyNode(xKey, NodeMixin):
     def __init__(self, payload, parent = None):
         xKey.__init__(self, payload)
-        self.name = "Index: " + self.index[-1:] + "\nKey:" + self.key[:8]
+
+        # Get the label for our Nodes
+        if (int(self.index[0]) >= 8):
+            self.name = "Index: " + str(int(self.index, 16)-int('80000000', 16)) + "'\nKey: " + self.key[:8]
+        else:
+            self.name = "Index: " + str(int(self.index, 16)) + "\nKey:" + self.key[:8]
+        
+        # Parent node
         self.parent = parent
     def getKey(self):
         return super().getKey()

@@ -38,33 +38,25 @@ wallet = [
     keys.xKey('xprv9wqXrf5G14NKUGRrU8DUPFanUFdddmMkJW15oXiLic2sGTW6HJrPZ5wJ5MhENrJKAvJkfbwkGU43rwCK7n17XpuydDjEbWFiHdtfJdixVc1'), # m/0/0
     keys.xKey('xprv9wqXrf5G14NKVfegjszNHkg5hUZxcLPg5odaSKCNz9NGUR9TSyby2YoWbs8RXpkUhnSYkuyGCDH7rWHG3TJthbwhiUhaS6Vjw8SPgmarwAM'), # m/0/1
     keys.xKey('xprv9vbNpzu8fPcJMdzvt3Cj6t9khG8b1ehvTb1J9R561yHvcYz4UQcJoWe6ixLDKzeRhFuFBpBU5btxTLy9sFFLEh13m8CPjwxWsgijNcgupdB'), # m/1
-    keys.xKey('xprv9wAMYNQjNLC56imfSowekLAuvvMzfKmQW1XPUToAtgXCycLkAPBsi9Pw9DeXhssXgXoLdRPRzEvYWqC5enm7hAJdFfVjzjM6Fu4vc2zXmyL')  # m/2/0
+    keys.xKey('xprv9wAMYNQjNLC56imfSowekLAuvvMzfKmQW1XPUToAtgXCycLkAPBsi9Pw9DeXhssXgXoLdRPRzEvYWqC5enm7hAJdFfVjzjM6Fu4vc2zXmyL'), # m/2/0
+    keys.xKey('xprv9vbNpzuH149GTGgnL3kjmVUX6mVTTFanegE9aeM3TLJHYKnzscPJa9yX4ayWXHkK9YUKbJKo1mzUL5ANGo1kreGdz32BKkJq9VTJRscrEup'), # m/0'
+    keys.xKey('xprv9wpvXztym6r93JWXBHSgKtdkLqgnza5eAgi6qRCNFTZ3iJ7BWzRoq2pZzZ7P3o3SugynBR7th5thWJt4HaLZ8SoLWc3MzNToDEk7rod3PqF')  # m/0'/1
 ]
 
 walletTree = list()
 
+# Sort by depth, index, then fingerprint
 wallet.sort(key=lambda x: (x.xDepth, x.index, x.fingerprint))
 
+# Create the walletTree list
 for x in wallet:
     if x.xDepth == "00":
         walletTree.append(keys.xKeyNode(x.getKey(), parent=None))
-        print(walletTree)
     else: 
         walletTree.append(keys.xKeyNode(x.getKey(), parent=FindParent(walletTree, x.fingerprint)))
 
-for pre, fill, node in RenderTree(walletTree[0]):
-    treestr = u"%s%s" % (pre, node.name)
-    print(treestr.ljust(8))
-
+# Make a graph image of the tree structure
+print("Exporting wallet.dot...")
 DotExporter(walletTree[0]).to_dotfile("wallet.dot")
-
+print("Rendering wallet.png...")
 render('dot', 'png', 'wallet.dot')
-
-# walletVal = dict(xprv=None, xpub = None, addr = None)
-# wallet = list(walletVal)
-
-# Will be receiving a potentially unsorted list of walNodes in wallet. Need to sort the list by {1st prio: depth, 2nd prio: index} THEN build 
-
-# def walletTree(wallet):
-    # sortedWallet = sorted(wallet, key = lambda i: i[])
-#    return
