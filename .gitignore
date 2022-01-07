@@ -3,7 +3,8 @@
 *.xml
 *.pyc
 src/__pycache__/
+.idea/
 test.py
 *.whl
-*.dot
-*.png
+wallet.dot
+wallet.dot.png

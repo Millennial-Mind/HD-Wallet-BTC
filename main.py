@@ -1,5 +1,5 @@
 #from src import wallet_initiation
-from src import wallet_initiation
+import src as wallet
 
 # 1 -> create the master priv key + master chain code
-master_key = wallet_initiation.in_it_wallet()
+master_key = wallet.in_it_wallet()

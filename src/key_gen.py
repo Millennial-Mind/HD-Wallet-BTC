@@ -2,7 +2,7 @@ import hmac
 import hashlib
 import ecdsa
 # import SECP256k1, SigningKey, VerifyingKey
-import keys
+from src import keys
 import json
 
 order = ecdsa.SECP256k1.order
