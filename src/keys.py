@@ -88,9 +88,13 @@ def Neuter(xprv):
     temp.key = PrvKeyToPubKey(xprv.key)
     return temp
 
-def getFingerprint(pubKey):
+def getAddr(pubKey):
     pKeyHash = hashlib.new('sha256', bytes.fromhex(pubKey)).digest()
     pKeyHash = hashlib.new('ripemd160', pKeyHash).hexdigest()
+    return pKeyHash
 
-    fingerprint = pKeyHash[:8]
+def getFingerprint(pubKey):
+    getAddr(pubKey)
+
+    fingerprint = pubKey[:8]
     return fingerprint
