@@ -24,8 +24,8 @@ def hardened(xprv, index):
     cChain = h[(len(h)//2):]
 
     cKey = h[:(len(h)//2)]
-    cKey = hex((int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16))
-    cKey = '00' + cKey[2:]
+    cKey = (int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16)
+    cKey = "{:66x}".format(cKey)
 
     cDepth = (int(prv.xDepth, 16) + int("1", 16))
     cDepth = "{:02x}".format(cDepth)
@@ -63,8 +63,8 @@ def CKDprv(xprv, index):
     cChain = h[(len(h)//2):]
 
     cKey = h[:(len(h)//2)]
-    cKey = hex((int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16)) # modulus of the order of the curve handles the overflow of the addition
-    cKey = '00' + cKey[2:]
+    cKey = (int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16) # modulus of the order of the curve handles the overflow of the addition
+    cKey = "{:66x}".format(cKey)
 
     cDepth = (int(prv.xDepth, 16) + int("1", 16))
     cDepth = "{:02x}".format(cDepth)

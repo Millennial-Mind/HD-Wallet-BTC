@@ -43,4 +43,5 @@ while userIn != 'exit':
             
             if tempDerived not in wallet:
                 wallet.append(tempDerived)
+    src.writeKey(wallet)
     src.buildTree(wallet)
