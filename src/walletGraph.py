@@ -24,8 +24,11 @@ def FindParent(wallet, fingerprint):
             return x
     raise Exception("Error: Parent key based on fingerprint not found")
 
+# Convert list of xKeys to a list of xKeyNodes
+# Wallet is a list of xKeys
 def buildTree(wallet):
 
+    # List of xKeyNode objects
     walletTree = list()
 
     # Sort by depth, index, then fingerprint
