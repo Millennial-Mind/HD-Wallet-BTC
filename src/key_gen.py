@@ -129,17 +129,3 @@ def CKDpub(xpub, index):
 
     print('Final:\t\t'+final)
     return final
-
-'''
-priv = 'xprv9vhJ3aEz7keXTpC3bUDfGrQBjgAJr9hohheGL2eSwB3LrVqJc69WFzMZWaBYQ87rAfkhip8A6AsABoNx93VnDA22oteyu8HzuhnFSbJzK2W'
-pub = 'xpub69geT5msx8CpgJGWhVkfdzLvHhzoFcRf4vZs8R44VWaKjJAT9dTkong3Ms6Q5JtDC8zzq1e1EWczjwDUsxvDMkhxDwsrbPh2RQePpTu7BEZ'
-expected = 'xpub6ASUhyiibqNpVQA8UHx8zUBDacwCcLWggPA2jgCsj5EgEMkr2ha65c2QrLxmgBSBkf5VW8Q9Dg1nBkzYPukV5pKT2pLGpDfBXsUqH5pyFVq'
-expected = keys.xKey(expected)
-
-if (expected.getKey() == CKDpub(pub, 0)):
-    print('YEP')
-else:
-    print('NOPE')
-
-print('Target: \t'+expected.getKey())
-'''
