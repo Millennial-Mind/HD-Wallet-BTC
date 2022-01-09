@@ -23,24 +23,18 @@ while userIn != 'exit':
         # Check if hardened range
         if userIn[i+1][-1:] == "'":
             index = int(userIn[i+1][:len(userIn[i+1])-1]) + int('80000000', 16)
-            # If it's the initial execution, use master key, else use the previous key (tempDerived)
-            if i == 0:
-                tempDerived = src.CKDprv(wallet[0].getKey(), index)
-            else:
-                tempDerived = src.CKDprv(tempDerived.getKey(), index)
-            
-            # Check if the the key to be derived is in wallet already
-            if tempDerived not in wallet:
-                wallet.append(tempDerived)
-        # Similar execution for non-hardened range
         else:
             index = int(userIn[i+1])
 
-            if i == 0:
+        # If it's the initial execution, use master key, else use the previous key (tempDerived)
+        if i == 0:
                 tempDerived = src.CKDprv(wallet[0].getKey(), index)
-            else:
-                tempDerived = src.CKDprv(tempDerived.getKey(), index)
+        else:
+            tempDerived = src.CKDprv(tempDerived.getKey(), index)
             
-            if tempDerived not in wallet:
-                wallet.append(tempDerived)
+            # Check if the the key to be derived is in wallet already
+        if tempDerived not in wallet:
+            wallet.append(tempDerived)
+            
+    src.writeKey(wallet)
     src.buildTree(wallet)

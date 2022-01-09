@@ -123,7 +123,7 @@ def in_it_wallet():
 
     #9 create key obj + initialize
     master_key = keys.xKey() #keys obj
-    master_key.key = '00' + master_privK
+    master_key.key = "{66x}".format(master_privK)
     master_key.chain = master_chainCode
     master_key.version = '0488ade4'
     master_key.xDepth = '00'

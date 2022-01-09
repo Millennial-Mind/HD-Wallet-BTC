@@ -24,8 +24,8 @@ def hardened(xprv, index):
     cChain = h[(len(h)//2):]
 
     cKey = h[:(len(h)//2)]
-    cKey = hex((int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16))
-    cKey = '00' + cKey[2:]
+    cKey = (int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16)
+    cKey = "{:66x}".format(cKey)
 
     cDepth = (int(prv.xDepth, 16) + int("1", 16))
     cDepth = "{:02x}".format(cDepth)
@@ -63,8 +63,8 @@ def CKDprv(xprv, index):
     cChain = h[(len(h)//2):]
 
     cKey = h[:(len(h)//2)]
-    cKey = hex((int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16)) # modulus of the order of the curve handles the overflow of the addition
-    cKey = '00' + cKey[2:]
+    cKey = (int(cKey, 16) + int(prv.key, 16)) % int(hex(order), 16) # modulus of the order of the curve handles the overflow of the addition
+    cKey = "{:66x}".format(cKey)
 
     cDepth = (int(prv.xDepth, 16) + int("1", 16))
     cDepth = "{:02x}".format(cDepth)
@@ -129,17 +129,3 @@ def CKDpub(xpub, index):
 
     print('Final:\t\t'+final)
     return final
-
-'''
-priv = 'xprv9vhJ3aEz7keXTpC3bUDfGrQBjgAJr9hohheGL2eSwB3LrVqJc69WFzMZWaBYQ87rAfkhip8A6AsABoNx93VnDA22oteyu8HzuhnFSbJzK2W'
-pub = 'xpub69geT5msx8CpgJGWhVkfdzLvHhzoFcRf4vZs8R44VWaKjJAT9dTkong3Ms6Q5JtDC8zzq1e1EWczjwDUsxvDMkhxDwsrbPh2RQePpTu7BEZ'
-expected = 'xpub6ASUhyiibqNpVQA8UHx8zUBDacwCcLWggPA2jgCsj5EgEMkr2ha65c2QrLxmgBSBkf5VW8Q9Dg1nBkzYPukV5pKT2pLGpDfBXsUqH5pyFVq'
-expected = keys.xKey(expected)
-
-if (expected.getKey() == CKDpub(pub, 0)):
-    print('YEP')
-else:
-    print('NOPE')
-
-print('Target: \t'+expected.getKey())
-'''

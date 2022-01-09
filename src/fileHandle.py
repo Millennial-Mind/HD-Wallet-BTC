@@ -3,6 +3,7 @@ import pickle
 
 def writeKey(key):
     with open('resources\wallet_keys.pickle', 'wb') as wk:
+        wk.seek(0)
         pickle.dump(key, wk, -1)
 
 def loadWallet():
