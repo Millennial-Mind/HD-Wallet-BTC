@@ -39,7 +39,6 @@ DECODED TrX:
 
 
 class TrX:
-
     def __init__(self, amount, recipient_list, version = 1, locktime = 0):
         # utxos(TrX objs) will become the vin for the transaction
         self.utxo_list = []
