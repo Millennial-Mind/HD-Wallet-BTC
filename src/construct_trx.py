@@ -41,7 +41,7 @@ DECODED TrX:
 class TrX:
     def __init__(self, amount, recipient_list, version = 1, locktime = 0):
         # utxos(TrX objs) will become the vin for the transaction
-        self.utxo_list = []
+        self.utxo_list = [] #arr of or vout obj
         #Version is 4bytes that tells peers/miners which set of rules the TrX follows / TrX w/ BIP68 have version 2 *new*
         self.version = version
         self.locktime = locktime     #locktime and sequence are directly related *sequence within in vin
@@ -54,7 +54,7 @@ class TrX:
     def find_utxos_toSpend():
         utxo = []
         # call balance tracker to find largest utxo available
-        largest_utxo = balance_tracker.get_largest_utxo()
+        largest_utxo = #file in resources, call it & get 1st element
         if(self.amount <= largest_utxo)
             #trx will be a common/distributing 
             construct_trx(largest_utxo)

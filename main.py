@@ -1,11 +1,22 @@
-#from src import wallet_initiation
+import platform
 import src
 import os.path
 
 # 1 -> create the master priv key + master chain code
 wallet = list()
 
-if not os.path.exists('resources\wallet_keys.pickle'):
+
+osys = platform.system().lower()
+route = ""
+
+if(osys == "darwin"):
+    route = 'resources/wallet_keys.pickle'
+elif(osys == "windows"):
+    route = 'resources\wallet_keys.pickle'
+else:
+    print('OS not loaded into program. Maybe later.')
+
+if not os.path.exists(route):
     wallet.append(src.in_it_wallet())
     src.writeKey(wallet)
 else:
@@ -38,3 +49,13 @@ while userIn != 'exit':
             
     src.writeKey(wallet)
     src.buildTree(wallet)
+
+
+
+
+
+'''
+    print(wallet[0].key)
+    print(wallet[1].key)
+    print(wallet[2].key)
+'''
